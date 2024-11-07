@@ -1,0 +1,50 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up</title>
+    
+    <link rel="stylesheet" href="CSS/signup.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://kit.fontawesome.com/cc6fad79da.js" crossorigin="anonymous"></script>
+</head>
+<body>
+    <header>
+        <p style="text-align: center; font-weight: bold; font-size: 35px;">Experience Your All Transport Services</p>
+    </header>
+
+    <main>
+        <h1 class="text-center font-bold mb-6 text-2xl">Please fill your information.</h1>
+
+        <input type="text" placeholder="First name" id="FirstName"
+            class="input-field border border-gray-300 rounded-full shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 w-full mb-6" required />
+
+        <input type="text" placeholder="Last name" id="LastName"
+            class="input-field border border-gray-300 rounded-full shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 w-full mb-6" required />
+
+        <input type="date" placeholder="Date of birth" id="dateInput"
+            class="input-field border border-gray-300 rounded-full text-[#4B5563] shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 w-full pr-4 mb-3" required />
+
+        <div class="flex items-center justify-center ">
+            <p class="text-[#4B5563] font-bold pl-2">Have an account?</p>
+            <button onclick="SignIn()" class="font-bold text-[#108480F7] ml-2">Sign In</button>
+        </div>
+
+        <div id="userInfo" class="text-center mt-6"></div>
+        <div id="errorMessage" class="text-red-500 text-center mt-4"></div>
+    </main>
+
+    <footer class="flex justify-between pl-7 pr-7 mt-6">
+        <button id="PreviewButton" type="button" class="flex justify-between input-field border border-gray-300 rounded-full text-[#4B5563] shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 w-12">
+            <i class="fa-solid fa-arrow-left"></i>
+        </button>
+
+        <button id="NextButton" type="button" class="flex justify-between input-field border border-gray-300 rounded-full text-[#4B5563] shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 w-12">
+            <i class="fa-solid fa-arrow-right"></i>
+        </button>
+    </footer>
+
+    <script src="/JS/SignUp1.js"></script>
+</body>
+</html>

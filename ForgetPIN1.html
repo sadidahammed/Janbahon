@@ -1,0 +1,123 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Forget Pin</title>
+    
+    <link rel="stylesheet" href="CSS/signup.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://kit.fontawesome.com/cc6fad79da.js" crossorigin="anonymous"></script>
+</head>
+<body>
+    <header>
+        <p style="text-align: center; font-size: 35px; font-weight: bold;">Experience Your All Transport Services</p>
+    </header>
+
+    <main>
+        <!-- Phone number section -->
+        <div id="phoneNumberSection">
+            <h1 class="text-center font-bold mb-6 text-2xl">Please provide your phone number to locate your account.</h1>
+            <div class="input-container">
+                <i class="fas fa-phone input-icon"></i>
+                <input type="tel" placeholder="01X XXXX XXXX" id="PhoneNumber" style="padding-left: 35px;"
+                       class="input-field border border-gray-300 rounded-full shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 w-full" maxlength="11" required />
+            </div>
+            
+            <div id="errorMessage" class="text-red-500 text-center mt-4"></div>
+
+            <footer class="flex justify-between mt-6">
+                <button id="PreviewButton" type="button" class="flex justify-between input-field border border-gray-300 rounded-full text-[#4B5563] shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 w-12" onclick="PreviewFromPhoneNumber()">
+                    <i class="fa-solid fa-arrow-left"></i>
+                </button>
+        
+                <button id="NextButton" type="button" class="flex justify-between input-field border border-gray-300 rounded-full text-[#4B5563] shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 w-12" onclick="PhonenumberSubmit()">
+                    <i class="fa-solid fa-arrow-right"></i>
+                </button>
+            </footer>
+        </div>
+
+        <!-- Verification code input section, hidden by default -->
+        <div id="verificationCodeSection" style="display: none;">
+            <h1 class="text-center font-bold mt-6 text-2xl mb-6">Enter verification code.</h1>
+            <div class="flex flex-col items-center">
+                <div class="flex space-x-2">
+                    <input type="number" maxlength="1" class="w-12 h-12 border border-gray-300 rounded text-center text-xl focus:outline-none focus:ring-2 focus:ring-blue-500" id="digit1" />
+                    <input type="number" maxlength="1" class="w-12 h-12 border border-gray-300 rounded text-center text-xl focus:outline-none focus:ring-2 focus:ring-blue-500" id="digit2" />
+                    <input type="number" maxlength="1" class="w-12 h-12 border border-gray-300 rounded text-center text-xl focus:outline-none focus:ring-2 focus:ring-blue-500" id="digit3" />
+                    <input type="number" maxlength="1" class="w-12 h-12 border border-gray-300 rounded text-center text-xl focus:outline-none focus:ring-2 focus:ring-blue-500" id="digit4" />
+                    <input type="number" maxlength="1" class="w-12 h-12 border border-gray-300 rounded text-center text-xl focus:outline-none focus:ring-2 focus:ring-blue-500" id="digit5" />
+                    <input type="number" maxlength="1" class="w-12 h-12 border border-gray-300 rounded text-center text-xl focus:outline-none focus:ring-2 focus:ring-blue-500" id="digit6" />
+                </div>
+                <p id="Verification_message" class="mt-4 text-lg font-semibold text-center"></p>
+            </div>
+
+            <footer class="flex justify-between mt-6">
+                <button id="PreviewButton" type="button" class="flex justify-between input-field border border-gray-300 rounded-full text-[#4B5563] shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 w-12" onclick="VarificationPreviewBtn()">
+                    <i class="fa-solid fa-arrow-left"></i>
+                </button>
+        
+                <button id="NextButton1" type="button" class="flex justify-between input-field border border-gray-300 rounded-full text-[#4B5563] shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 w-12" onclick="CompleteVarification()">
+                    <i class="fa-solid fa-arrow-right"></i>
+                </button>
+            </footer>
+        </div>
+    <!--Pin Section-->
+        <div id="pinCodeSection" style="display: none;">
+            <h1 class="text-center font-bold text-2xl">Set up your pin.</h1>
+            <p class="text-center">Don't share your PIN with anyone.</p>
+
+            <div class="input-container" style="margin-top: 30px;">
+                <i class="fa-solid fa-lock input-icon"></i>
+                <input type="password" id="FirstPIN" placeholder="PIN"
+                       class="input-field border border-gray-300 rounded-full shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 w-full" maxlength="8" required />
+                <i class="fa-solid fa-eye toggle-icon" id="togglePassword"></i>
+                
+            </div>
+    
+            <div class="input-container" style="margin-top: 30px;">
+                <i class="fa-solid fa-lock input-icon"></i>
+                <input type="password" id="ConfPIN" placeholder="Re-type PIN"
+                       class="input-field border border-gray-300 rounded-full shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 w-full" maxlength="8" required />
+                <i class="fa-solid fa-eye toggle-icon" id="togglePassword"></i>
+                
+            </div>
+    
+            <div class="items-center mt-3 pl-4 text-center">
+                <input type="checkbox" id="checkbox" class="mr-2">
+                <label for="checkbox">
+                    <span style="font-weight: 50;">
+                        By signing up you accept the 
+                        <button id="TermOfServices" class="text-[#108480F7]">Term of Service</button> and 
+                        <button id="PrivacyPolicy" class="text-[#108480F7]">Privacy Policy</button>
+                    </span>
+                </label>
+            </div>
+            
+            <!-- The Popup -->
+        <div id="popup" class="popup">
+            <div class="popup-content">
+                <p id="popupMessage"></p>
+                <button class="close-btn rounded-full w-full" id="closePopupButton">Close</button>
+            </div>
+        </div>
+    
+        <footer class="flex justify-between mt-6">
+            <button id="PreviewButton" type="button" class="flex justify-between input-field border border-gray-300 rounded-full text-[#4B5563] shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 w-12 pl-3.5">
+                <i class="fa-solid fa-arrow-left"></i>
+            </button>
+    
+            <button id="NextButton" type="button" class="flex justify-between input-field border border-gray-300 rounded-full text-[#4B5563] shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 w-12 pl-3.5" onclick="NextFromPINset()">
+                <i class="fa-solid fa-arrow-right"></i>
+            </button>
+        </footer>
+        </div>
+
+    </main>
+
+
+    
+
+    <script src="/JS/ForgetPIN1.js"></script> 
+</body>
+</html>

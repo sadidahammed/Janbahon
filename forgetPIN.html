@@ -1,0 +1,72 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Forget PIN</title>
+    
+    <link rel="stylesheet" href="CSS/SignUp4.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://kit.fontawesome.com/cc6fad79da.js" crossorigin="anonymous"></script>
+</head>
+<body>
+    <header>
+        <p style="text-align: center; font-weight: bold; font-size: 35px;">Experience Your All Transport Services</p>
+    </header>
+
+    <h1 class="text-center font-bold mt-6 text-2xl">Set up your pin.</h1>
+    <p class="text-center">Don't share your code with anyone.</p>
+
+    <main >
+
+        <div class="input-container" style="margin-top: 30px;">
+            <i class="fa-solid fa-lock input-icon"></i>
+            <input type="password" id="FirstPIN" placeholder="PIN"
+                   class="input-field border border-gray-300 rounded-full shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 w-full" maxlength="8" required />
+            <i class="fa-solid fa-eye toggle-icon" id="togglePassword"></i>
+            
+        </div>
+
+        <div class="input-container" style="margin-top: 30px;">
+            <i class="fa-solid fa-lock input-icon"></i>
+            <input type="password" id="ConfPIN" placeholder="Re-type PIN"
+                   class="input-field border border-gray-300 rounded-full shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 w-full" maxlength="8" required />
+            <i class="fa-solid fa-eye toggle-icon" id="togglePassword"></i>
+            
+        </div>
+
+        <div class="items-center mt-3 pl-4 text-center">
+            <input type="checkbox" id="checkbox" class="mr-2">
+            <label for="checkbox">
+                <span style="font-weight: 50;">
+                    By signing up you accept the 
+                    <button id="TermOfServices" class="text-[#108480F7]">Term of Service</button> and 
+                    <button id="PrivacyPolicy" class="text-[#108480F7]">Privacy Policy</button>
+                </span>
+            </label>
+        </div>
+        
+        <!-- The Popup -->
+    <div id="popup" class="popup">
+        <div class="popup-content">
+            <p id="popupMessage"></p>
+            <button class="close-btn rounded-full w-full" id="closePopupButton">Close</button>
+        </div>
+    </div>
+
+    </main>
+
+    <footer class="flex justify-between pl-7 pr-7 mt-6">
+        <button id="PreviewButton" type="button" class="flex justify-between input-field border border-gray-300 rounded-full text-[#4B5563] shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 w-12 pl-3.5">
+            <i class="fa-solid fa-arrow-left"></i>
+        </button>
+
+        <button id="NextButton" type="button" class="flex justify-between input-field border border-gray-300 rounded-full text-[#4B5563] shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 w-12 pl-3.5">
+            <i class="fa-solid fa-arrow-right"></i>
+        </button>
+    </footer>
+
+    <!--Java file attach-->
+    <script src="/JS/ForgetPIN.js"></script> 
+</body>
+</html>
