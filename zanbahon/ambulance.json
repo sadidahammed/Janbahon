@@ -1,0 +1,47 @@
+{
+    "ambulances": [
+      {
+        "id": "AMB001",
+        "type": "Basic Life Support",
+        "location": {
+          "latitude": 40.712776,
+          "longitude": -74.005974
+        },
+        "status": "available",
+        "hospital": "City Hospital",
+        "contact": {
+          "phone": "+1-555-1234",
+          "driver_name": "John Doe"
+        }
+      },
+      {
+        "id": "AMB002",
+        "type": "Advanced Life Support",
+        "location": {
+          "latitude": 40.758896,
+          "longitude": -73.985130
+        },
+        "status": "en route",
+        "hospital": "General Medical Center",
+        "contact": {
+          "phone": "+1-555-5678",
+          "driver_name": "Jane Smith"
+        }
+      },
+      {
+        "id": "AMB003",
+        "type": "Neonatal Ambulance",
+        "location": {
+          "latitude": 40.730610,
+          "longitude": -73.935242
+        },
+        "status": "on call",
+        "hospital": "Children's Hospital",
+        "contact": {
+          "phone": "+1-555-2468",
+          "driver_name": "David Lee"
+        }
+      }
+    ]
+  }
+  

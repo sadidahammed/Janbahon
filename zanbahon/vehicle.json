@@ -1,0 +1,25 @@
+{
+    "vehicles": [
+      {
+        "type": "Sedan",
+        "service": "Uber",
+        "phone": "+880123456789"
+      },
+      {
+        "type": "SUV",
+        "service": "Pathao",
+        "phone": "+880987654321"
+      },
+      {
+        "type": "Motorbike",
+        "service": "Obhai",
+        "phone": "+8801122334455"
+      },
+      {
+        "type": "Truck",
+        "service": "Truck Lagbe",
+        "phone": "+8802233445566"
+      }
+    ]
+  }
+  
