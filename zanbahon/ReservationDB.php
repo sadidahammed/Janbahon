@@ -35,19 +35,21 @@ try {
     // Create reservation table
     $sqlReservation = "CREATE TABLE IF NOT EXISTS Reservation_Table (
         id INT AUTO_INCREMENT PRIMARY KEY,
+        Service_ID FLOAT NOT NULL,
         pickup_location VARCHAR(255) NOT NULL,
         destination VARCHAR(255) NOT NULL,
+        Reservation_date DATE NOT NULL,
         vehicle_type VARCHAR(255) NOT NULL,
-        payment_method VARCHAR(255) NOT NULL,
-        userID INT,
-        driverID INT,
-        status VARCHAR(50) NOT NULL,
+        trip_type VARCHAR(255) NOT NULL,
         trip_start TIME,
-        trip_end TIME,
-        FOREIGN KEY (userID) REFERENCES users(Id),
-        FOREIGN KEY (driverID) REFERENCES drivers(id)
+        price FLOAT NOT NULL,
+        payment_method VARCHAR(255) NOT NULL,
+        status VARCHAR(50) NOT NULL,
+        userID INT,
+        driverID INT
     )";
     $conn->exec($sqlReservation);
+
 
 } catch(PDOException $e) {
     echo "Error: " . $e->getMessage();

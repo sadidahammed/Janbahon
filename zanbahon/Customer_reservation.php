@@ -10,7 +10,6 @@ try {
     $conn = new PDO("mysql:host=$servername;dbname=$dbname", $username, $password);
     $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-
     if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $action = $_POST['action'] ?? null;
 
@@ -20,30 +19,38 @@ try {
             $destination = $_POST['destination'] ?? "Unknown";
             $vehicle_type = $_POST['vehicle_type'] ?? "Unknown";
             $payment_method = $_POST['payment_method'] ?? "Unknown";
-            $trip_start = $_POST['strip_start'] ?? "00:00:00";
-            $trip_end = $_POST['trip_end'] ?? null;
+            $trip_start = $_POST['trip_start'] ?? "00:00:00";
+            $trip_type = $_POST['trip_type'] ?? "One Way trip";
+            $date = $_POST['date'] ?? date('Y-m-d');
+            $price = $_POST['price'] ?? 0;
 
-            // Fixed values for userID and driverID
+
+            // Fixed values for userID, driverID, and price
             $userID = 1;
             $driverID = null;
             $status = 'Pending';
+            $Service_ID = 1; //1 for reservation
+
 
             // Insert data into Reservation_Table
             $sql = "INSERT INTO Reservation_Table 
-            (pickup_location, destination, vehicle_type, payment_method, userID, driverID, status, trip_start, trip_end) 
+            (Service_ID, pickup_location, destination, Reservation_date, vehicle_type, trip_type, trip_start, price, payment_method, status, userID, driverID) 
             VALUES 
-            (:pickup_location, :destination, :vehicle_type, :payment_method, :userID, :driverID, :status, :trip_start, :trip_end)";
+            (:Service_ID,:pickup_location, :destination, :Reservation_date, :vehicle_type, :trip_type, :trip_start, :price, :payment_method, :status, :userID, :driverID)";
 
             $stmt = $conn->prepare($sql);
+            $stmt->bindParam(':Service_ID', $Service_ID);
             $stmt->bindParam(':pickup_location', $pickup_location);
             $stmt->bindParam(':destination', $destination);
+            $stmt->bindParam(':Reservation_date', $date);
             $stmt->bindParam(':vehicle_type', $vehicle_type);
+            $stmt->bindParam(':trip_type', $trip_type);
+            $stmt->bindParam(':trip_start', $trip_start);
+            $stmt->bindParam(':price', $price);
             $stmt->bindParam(':payment_method', $payment_method);
+            $stmt->bindParam(':status', $status);
             $stmt->bindParam(':userID', $userID);
             $stmt->bindParam(':driverID', $driverID);
-            $stmt->bindParam(':status', $status);
-            $stmt->bindParam(':trip_start', $trip_start);
-            $stmt->bindParam(':trip_end', $trip_end);
 
             if ($stmt->execute()) {
                 echo "Reservation added successfully!";
@@ -60,6 +67,7 @@ try {
     echo "Connection failed: " . $e->getMessage();
 }
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en" data-theme="light">
@@ -86,6 +94,7 @@ try {
 <body class="h-full overflow-auto">
     <!-- Home Page -->
     <div id="vehicleReservation" class="min-h-screen flex flex-col pb-64 overflow-auto">
+        <!-- Hearder start -->
         <div class="flex items-center p-5 bg-pantone space-x-3 text-lg font-bold">
             <div class=" flex items-center space-x-3 md:hidden">
                 <i class="fa-solid fa-arrow-left text-white"></i>
@@ -99,11 +108,13 @@ try {
                 <p>Modes</p>
             </div>
         </div>
+        <!-- Header end -->
 
         <div class="flex md:flex-row flex-col items-center  pt-10 justify-center">
             <div class="flex flex-col">
                 <form >
 
+                <!-- Location pickup and drop -->
                     <div class="flex flex-col gap-2 border-2 rounded-box p-2 mb-4">
                         <p class="text-lg font-semibold text-left">Pick up & Drop:</p>
                         <div class="mb-4">
@@ -125,6 +136,12 @@ try {
                                 <i class="fa-solid fa-location-crosshairs absolute top-1/2 right-4 transform -translate-y-1/2 "></i>
                             </div>
                         </div>
+                    </div>
+
+                    <!-- Date input -->
+                    <div class="flex flex-col gap-2 border-2 rounded-box p-2 mb-4">
+                        <p class="text-lg font-semibold text-left">Date of reservation:</p>
+                        <input type="date" id="ReservationDate">
                     </div>
 
                     <!-- Vehicle Type dropdown menu -->
@@ -206,7 +223,7 @@ try {
                         <div id="round_trip" class="flex flex-row justify-between mt-4 hidden">
                             <div class="flex flex-col">
                                 <label for="pickup_time">Pickup Time</label>
-                                <input id="pickup_time" type="time" value="12:00">
+                                <input id="pickup_time1" type="time" value="12:00">
                             </div>
                             <div class="flex flex-col">
                                 <label for="drop_time">Drop Time</label>
@@ -275,16 +292,19 @@ try {
         <input type="hidden" id="destination-input" name="destination">
         <input type="hidden" id="vehicle_type-input" name="vehicle_type">
         <input type="hidden" id="payment_method-input" name="payment_method">
-        <input type="hidden" id="strip_start-input" name="strip_start">
-        <input type="hidden" id="trip_end-input" name="trip_end">
+        <input type="hidden" id="trip_type-input" name="trip_type">
+        <input type="hidden" id="trip_start-input" name="trip_start"> 
+        <input type="hidden" id="date-input" name="date">
+        <input type="hidden" id="price-input" name="price">
         <input type="hidden" name="action" id="action">
     </form>
 
 
 
 
+
     <!-- Don't remove it should be there  -->
-    <div id="historyPage">
+    <div id="historyPage" class="hidden">
         <div class="flex items-center p-5 bg-pantone space-x-3 text-lg font-bold">
             <div onclick="backToHome()" class=" flex items-center space-x-3 md:hidden">
                 <i class="fa-solid fa-arrow-left text-white"></i>
@@ -342,12 +362,11 @@ try {
 <script>
     document.getElementById("historyPage").classList.add("hidden");
 
-    function backToHome() {
-        document.getElementById("historyPage").classList.add("hidden");
-        document.getElementById("vehicleReservation").classList.remove("hidden");
-    }
+    // Get today's date in 'YYYY-MM-DD' format
+    var today = new Date().toISOString().split('T')[0];
+    document.getElementById('ReservationDate').value = today;
 
-    // Select the <details> element, <summary>, and all list items
+    // Drop down for vehicle type
     const menu = document.getElementById('vehicleMenu');
     const summary = document.getElementById('menuSummary');
     const menuItems = menu.querySelectorAll('ul > li > a');
@@ -362,7 +381,9 @@ try {
             menu.removeAttribute('open'); // Close the dropdown menu
         });
     });
+    
 
+    // Trip type
     function toggleTripType(type) {
         const oneWay = document.getElementById('OneWay_trip');
         const roundTrip = document.getElementById('round_trip');
@@ -404,49 +425,52 @@ try {
     let pickupTime;
     let dropTime;
     let paymentMethod;
+    var selectedDate;
+    var price = 10;
 
     document.getElementById("requestButton").addEventListener("click", function(event) {
         event.preventDefault(); // Prevent form submission
+        selectedDate = document.getElementById('ReservationDate').value;
+// Gather values from the form
+ pickUpLocation = document.getElementById("pickUpLocation")?.value.trim(),
+      dropOffLocation = document.getElementById("dropOffLocation")?.value.trim(),
+      vehicleType = document.querySelector('#vehicleMenu summary')?.innerText.trim() || '',
+      tripType = document.querySelector('input[name="tripType"]:checked')?.value || '',
+      pickupTime = tripType === "OneWay" 
+                   ? document.getElementById("pickup_time")?.value || '' 
+                   : document.getElementById("pickup_time1")?.value || '',
+      dropTime = tripType === "RoundTrip" 
+                 ? document.getElementById("drop_time")?.value || '' 
+                 : '',
+      paymentMethod = document.querySelector('#PaymentMenu summary')?.innerText.trim() || '';
 
-        // Gather values from the form
-        pickUpLocation = document.getElementById("pickUpLocation").value.trim();
-        dropOffLocation = document.getElementById("dropOffLocation").value.trim();
-        vehicleType = document.querySelector('#vehicleMenu summary') ? document.querySelector('#vehicleMenu summary').innerText.trim() : '';
-        tripType = document.querySelector('input[name="tripType"]:checked') ? document.querySelector('input[name="tripType"]:checked').value : '';
-        pickupTime = document.getElementById("pickup_time") ? document.getElementById("pickup_time").value : '';
-        dropTime = document.getElementById("drop_time") ? document.getElementById("drop_time").value : '';
-        paymentMethod = document.querySelector('#PaymentMenu summary') ? document.querySelector('#PaymentMenu summary').innerText.trim() : '';
+// Validate inputs
+const missingFields = [
+    !pickUpLocation && "Pick-up Location",
+    !dropOffLocation && "Drop-off Location",
+    !vehicleType && "Vehicle Type",
+    !tripType && "Trip Type",
+    tripType === "OneWay" && !pickupTime && "Pickup Time",
+    tripType === "RoundTrip" && (!pickupTime || !dropTime) && "Pickup and Drop Time",
+    !paymentMethod && "Payment Method"
+].filter(Boolean);
 
-        // Validate inputs
-        let missingFields = [];
-        if (!pickUpLocation) missingFields.push("Pick-up Location");
-        if (!dropOffLocation) missingFields.push("Drop-off Location");
-        if (!vehicleType) missingFields.push("Vehicle Type");
-        if (!tripType) missingFields.push("Trip Type");
-        if (tripType === "OneWay" && !pickupTime) missingFields.push("Pickup Time");
-        if (tripType === "RoundTrip" && (!pickupTime || !dropTime)) missingFields.push("Pickup and Drop Time");
-        if (!paymentMethod) missingFields.push("Payment Method");
-
-        // If any fields are missing, show a message
-        if (missingFields.length > 0) {
-            alert("Please fill out the following fields: " + missingFields.join(", "));
-            return;
-        }
+// Show alert for missing fields
+if (missingFields.length) {
+    alert("Please fill out the following fields: " + missingFields.join(", "));
+    return;
+}
 
         // Prepare the popup content
         let popupContent = `
         <p><strong>Pick-up Location:</strong> ${pickUpLocation}</p>
         <p><strong>Drop-off Location:</strong> ${dropOffLocation}</p>
+        <p><strong>Reservation date:</strong> ${selectedDate}</p>
         <p><strong>Vehicle Type:</strong> ${vehicleType}</p>
         <p><strong>Trip Type:</strong> ${tripType}</p>
         <p><strong>Pickup Time:</strong> ${pickupTime}</p>
+        <p><strong>Trip cost:</strong> ${price}</p>
     `;
-
-        dropTime = "Unknown";
-
-        if (tripType === "RoundTrip") {
-            popupContent += `<p><strong>Drop Time:</strong> ${dropTime}</p>`;
-        }
 
         popupContent += `
         <p><strong>Payment Method:</strong> ${paymentMethod}</p>
@@ -467,16 +491,15 @@ try {
 
 
     function insertdata() {
-        // Dynamically get the values from the form
-        pickupTime = document.getElementById("pickup_time").value.trim(); // Pickup time from input field
-        dropTime = document.getElementById("drop_time").value.trim() || null; // Drop time from input field (default to null if empty)
         // Set form values
         document.getElementById('pickup_location-input').value = pickUpLocation;
         document.getElementById('destination-input').value = dropOffLocation;
         document.getElementById('vehicle_type-input').value = vehicleType;
         document.getElementById('payment_method-input').value = paymentMethod;
-        document.getElementById('strip_start-input').value = pickupTime;
-        document.getElementById('trip_end-input').value = dropTime;
+        document.getElementById('trip_type-input').value = tripType;
+        document.getElementById('trip_start-input').value = pickupTime; // Fixed typo here
+        document.getElementById('date-input').value = selectedDate;
+        document.getElementById('price-input').value = price;
         document.getElementById("action").value = "Unknown";
 
         // Submit the form
@@ -484,7 +507,6 @@ try {
         document.getElementById('data-form').submit();
         document.getElementById('data-form').reset();
         document.getElementById("popupModal").classList.add("hidden");
-
     }
 </script>
 

@@ -19,7 +19,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['accept'])) {
   $reservationId = $_POST['reservation_id'];
 
   // Update reservation status to "Accepted" and set driverID to 8
-  $updateSql = "UPDATE Reservation_Table SET status = 'Accepted', driverID = 8 WHERE id = ?";
+  $updateSql = "UPDATE Reservation_Table SET status = 'Accepted', driverID = 8 WHERE Service_ID = 1 AND id = ?";
   $stmt = $conn->prepare($updateSql);
   $stmt->bind_param("i", $reservationId);
   $stmt->execute();
@@ -30,7 +30,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['accept'])) {
 }
 
 // Fetch all reservations with status 'Pending'
-$sqlPending = "SELECT * FROM Reservation_Table WHERE status = 'Pending'";
+$sqlPending = "SELECT * FROM Reservation_Table WHERE Service_ID = 1 AND status = 'Pending'";
 $resultPending = $conn->query($sqlPending);
 
 $reservationsPending = [];
@@ -40,7 +40,7 @@ if ($resultPending->num_rows > 0) {
   }
 }
 // Fetch reservations where driverID = 8 and status = 'Accepted'
-$sqlAccepted = "SELECT * FROM Reservation_Table WHERE driverID = 8 AND status = 'Accepted'";
+$sqlAccepted = "SELECT * FROM Reservation_Table WHERE Service_ID = 1 AND driverID = 8 AND status = 'Accepted'";
 $resultAccepted = $conn->query($sqlAccepted);
 
 $reservationsAccepted = [];
@@ -51,7 +51,7 @@ if ($resultAccepted->num_rows > 0) {
 }
 
 // Fetch reservations with status 'Cancelled' and driverID = 8
-$sqlCancelled = "SELECT * FROM Reservation_Table WHERE status = 'Cancelled' AND driverID = 8";
+$sqlCancelled = "SELECT * FROM Reservation_Table WHERE Service_ID = 1 AND status = 'Cancelled' AND driverID = 8";
 $resultCancelled = $conn->query($sqlCancelled);
 
 $cancelledReservations = [];
@@ -62,7 +62,7 @@ if ($resultCancelled->num_rows > 0) {
 }
 
 // Fetch reservations with status 'Successful' and driverID = 8
-$querySuccessful = "SELECT * FROM Reservation_Table WHERE status = 'Successful' AND driverID = 8";
+$querySuccessful = "SELECT * FROM Reservation_Table WHERE Service_ID = 1 AND status = 'Successful' AND driverID = 8";
 $resultSuccessful = $conn->query($querySuccessful);
 
 $successfulReservations = [];
@@ -78,7 +78,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['reservationId']) && is
   $reservationId = $_POST['reservationId'];
   $status = $_POST['status'];
 
-  $updateSql = "UPDATE Reservation_Table SET status = ? WHERE id = ?";
+  $updateSql = "UPDATE Reservation_Table SET status = ? WHERE Service_ID = 1 AND id = ?";
   $stmt = $conn->prepare($updateSql);
   $stmt->bind_param("si", $status, $reservationId);
 
@@ -146,10 +146,12 @@ $conn->close();
               <div class="flex justify-between bg-white p-5 rounded-lg shadow-md hover:shadow-xl cursor-pointer reservation-item">
                 <div>
                   <p class="text-xl font-semibold text-gray-800">Name: Sadid</p>
+                  <p class="md:text-xl text-sm font-semibold text-gray-800">Reservation date: <?php echo $reservation['Reservation_date']; ?></p>
                   <p class="text-lg font-semibold text-green-500"><?php echo $reservation['pickup_location']; ?> → <?php echo $reservation['destination']; ?></p>
+                  <p class="text-sm text-gray-600">Trip type: <?php echo $reservation['trip_type']; ?></p>
                   <p class="text-sm text-gray-600">Vehicle Type: <?php echo $reservation['vehicle_type']; ?></p>
                   <p class="text-sm text-gray-600">Pickup Time: <?php echo $reservation['trip_start']; ?></p>
-                  <p class="text-sm text-gray-600">Payment Method: <?php echo $reservation['payment_method']; ?></p>
+                  <p class="text-sm text-gray-600">Trip cost: <?php echo $reservation['price']; ?> <?php echo $reservation['payment_method']; ?></p>
                 </div>
                 <div>
                   <!-- Accept Button -->
@@ -172,10 +174,12 @@ $conn->close();
             <?php foreach ($reservationsAccepted as $reservation): ?>
               <div class="flex justify-between bg-white p-5 rounded-lg shadow-md hover:shadow-xl cursor-pointer reservation-item">
                 <div>
-                  <p class="text-lg font-semibold"><?php echo $reservation['pickup_location']; ?> → <?php echo $reservation['destination']; ?></p>
-                  <p class="text-sm text-gray-500">Vehicle: <?php echo $reservation['vehicle_type']; ?></p>
-                  <p class="text-sm text-gray-500">Pickup Time: <?php echo $reservation['trip_start']; ?></p>
-                  <p class="text-sm text-gray-500">Payment Method: <?php echo $reservation['payment_method']; ?></p>
+                  <p class="md:text-xl text-sm font-semibold text-gray-800">Reservation date: <?php echo $reservation['Reservation_date']; ?></p>
+                  <p class="text-lg font-semibold text-green-500"><?php echo $reservation['pickup_location']; ?> → <?php echo $reservation['destination']; ?></p>
+                  <p class="text-sm text-gray-600">Trip type: <?php echo $reservation['trip_type']; ?></p>
+                  <p class="text-sm text-gray-600">Vehicle Type: <?php echo $reservation['vehicle_type']; ?></p>
+                  <p class="text-sm text-gray-600">Pickup Time: <?php echo $reservation['trip_start']; ?></p>
+                  <p class="text-sm text-gray-600">Trip cost: <?php echo $reservation['price']; ?> <?php echo $reservation['payment_method']; ?></p>
                 </div>
                 <div>
                   <!-- Edit Button to Open Popup -->
@@ -211,13 +215,15 @@ $conn->close();
           <div id="Cancelled_request" class="block">
             <div class="space-y-4">
               <?php if (!empty($cancelledReservations)): ?>
-                <?php foreach ($cancelledReservations as $cancelled): ?>
+                <?php foreach ($cancelledReservations as $reservation): ?>
                   <div class="flex justify-between bg-gray-100 p-5 rounded-lg shadow-md hover:shadow-xl reservation-item">
                     <div>
-                      <p class="text-lg font-semibold"><?php echo $cancelled['pickup_location']; ?> → <?php echo $cancelled['destination']; ?></p>
-                      <p class="text-sm text-gray-500">Vehicle: <?php echo $cancelled['vehicle_type']; ?></p>
-                      <p class="text-sm text-gray-500">Pickup Time: <?php echo $cancelled['trip_start']; ?></p>
-                      <p class="text-sm text-gray-500">Payment Method: <?php echo $cancelled['payment_method']; ?></p>
+                    <p class="md:text-xl text-sm font-semibold text-gray-800">Reservation date: <?php echo $reservation['Reservation_date']; ?></p>
+                    <p class="text-lg font-semibold text-green-500"><?php echo $reservation['pickup_location']; ?> → <?php echo $reservation['destination']; ?></p>
+                    <p class="text-sm text-gray-600">Trip type: <?php echo $reservation['trip_type']; ?></p>
+                    <p class="text-sm text-gray-600">Vehicle Type: <?php echo $reservation['vehicle_type']; ?></p>
+                    <p class="text-sm text-gray-600">Pickup Time: <?php echo $reservation['trip_start']; ?></p>
+                    <p class="text-sm text-gray-600">Trip cost: <?php echo $reservation['price']; ?> <?php echo $reservation['payment_method']; ?></p>
                     </div>
                     <div>
                       <p class="mt-3 text-red-500 font-bold">Cancelled</p>
@@ -238,13 +244,15 @@ $conn->close();
         <div id="Successful_request" class="block">
           <div class="space-y-4">
             <?php if (!empty($successfulReservations)): ?>
-              <?php foreach ($successfulReservations as $successful): ?>
+              <?php foreach ($successfulReservations as $reservation): ?>
                 <div class="flex justify-between bg-green-50 p-5 rounded-lg shadow-md hover:shadow-xl reservation-item">
                   <div>
-                    <p class="text-lg font-semibold"><?php echo $successful['pickup_location']; ?> → <?php echo $successful['destination']; ?></p>
-                    <p class="text-sm text-gray-500">Vehicle: <?php echo $successful['vehicle_type']; ?></p>
-                    <p class="text-sm text-gray-500">Pickup Time: <?php echo $successful['trip_start']; ?></p>
-                    <p class="text-sm text-gray-500">Payment Method: <?php echo $successful['payment_method']; ?></p>
+                  <p class="md:text-xl text-sm font-semibold text-gray-800">Reservation date: <?php echo $reservation['Reservation_date']; ?></p>
+                  <p class="text-lg font-semibold text-green-500"><?php echo $reservation['pickup_location']; ?> → <?php echo $reservation['destination']; ?></p>
+                  <p class="text-sm text-gray-600">Trip type: <?php echo $reservation['trip_type']; ?></p>
+                  <p class="text-sm text-gray-600">Vehicle Type: <?php echo $reservation['vehicle_type']; ?></p>
+                  <p class="text-sm text-gray-600">Pickup Time: <?php echo $reservation['trip_start']; ?></p>
+                  <p class="text-sm text-gray-600">Trip cost: <?php echo $reservation['price']; ?> <?php echo $reservation['payment_method']; ?></p>
                   </div>
                   <div>
                     <p class="mt-3 text-green-500 font-bold">Successful</p>
@@ -256,17 +264,7 @@ $conn->close();
             <?php endif; ?>
           </div>
         </div>
-
-
-
-
       </div>
-      
-          
-          
-
-
-    
     </div>
 
 

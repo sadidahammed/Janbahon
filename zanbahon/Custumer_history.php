@@ -19,7 +19,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['cancel'])) {
   $reservationId = $_POST['reservation_id'];
 
   // Update reservation status to "Cancelled"
-  $updateSql = "UPDATE Reservation_Table SET status = 'Cancelled' WHERE id = ?";
+  $updateSql = "UPDATE Reservation_Table SET status = 'Cancelled' WHERE Service_ID = 1 AND id = ?";
   $stmt = $conn->prepare($updateSql);
   $stmt->bind_param("i", $reservationId);
   $stmt->execute();
@@ -30,7 +30,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['cancel'])) {
 }
 
 // Fetch all reservations with status 'Pending'
-$sqlPending = "SELECT * FROM Reservation_Table WHERE status = 'Pending'";
+$sqlPending = "SELECT * FROM Reservation_Table WHERE Service_ID = 1 AND status = 'Pending'";
 $resultPending = $conn->query($sqlPending);
 
 $reservationsPending = [];
@@ -40,7 +40,7 @@ if ($resultPending->num_rows > 0) {
   }
 }
 // Fetch reservations with status 'Accepted' for userID = 1
-$sqlAccepted = "SELECT * FROM Reservation_Table WHERE userID = 1 AND status = 'Accepted'";
+$sqlAccepted = "SELECT * FROM Reservation_Table WHERE Service_ID = 1 AND userID = 1 AND status = 'Accepted'";
 $resultAccepted = $conn->query($sqlAccepted);
 
 $reservationsAccepted = [];
@@ -55,7 +55,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['cancel_reservation_id
   $reservationId = $_POST['cancel_reservation_id'];
 
   // Update the status to 'Cancelled'
-  $updateSql = "UPDATE Reservation_Table SET status = 'Cancelled' WHERE id = ?";
+  $updateSql = "UPDATE Reservation_Table SET status = 'Cancelled' WHERE Service_ID = 1 AND id = ?";
   $stmt = $conn->prepare($updateSql);
   $stmt->bind_param("i", $reservationId);
   $stmt->execute();
@@ -66,7 +66,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['cancel_reservation_id
 }
 
 // Fetch reservations with status 'Cancelled' and driverID = 8
-$sqlCancelled = "SELECT * FROM Reservation_Table WHERE status = 'Cancelled' AND userID = 1";
+$sqlCancelled = "SELECT * FROM Reservation_Table WHERE Service_ID = 1 AND status = 'Cancelled' AND userID = 1";
 $resultCancelled = $conn->query($sqlCancelled);
 
 $cancelledReservations = [];
@@ -77,7 +77,7 @@ if ($resultCancelled->num_rows > 0) {
 }
 
 // Fetch reservations with status 'Successful' and driverID = 8
-$querySuccessful = "SELECT * FROM Reservation_Table WHERE status = 'Successful' AND userID = 1";
+$querySuccessful = "SELECT * FROM Reservation_Table WHERE Service_ID = 1 AND status = 'Successful' AND userID = 1";
 $resultSuccessful = $conn->query($querySuccessful);
 
 $successfulReservations = [];
@@ -92,6 +92,7 @@ $conn->close();
 
 <!DOCTYPE html>
 <html lang="en" data-theme="light">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -120,7 +121,7 @@ $conn->close();
     <header class="flex items-center p-5 bg-pantone space-x-3 text-lg font-bold">
       <div class="flex items-center space-x-3 md:hidden">
         <a href="http://localhost/zanbahon/Customer_reservation.php">
-            <i class="fa-solid fa-arrow-left text-white"></i></a>
+          <i class="fa-solid fa-arrow-left text-white"></i></a>
         <p class="text-white">Vehicle Reservation</p>
       </div>
       <div class="md:flex space-x-5 text-white hidden">
@@ -132,23 +133,24 @@ $conn->close();
       </div>
     </header>
 
-  
+
 
 
     <div class="tabs tabs-bordered w-full max-w-2xl mx-auto">
       <!-- Pending Tab -->
-      <input id="Pending_tab" type="radio" name="my_tabs_1" role="tab" class="tab ml-3 md:ml-40"  aria-label="Pending " checked="checked" />
+      <input id="Pending_tab" type="radio" name="my_tabs_1" role="tab" class="tab ml-3 md:ml-40" aria-label="Pending " checked="checked" />
       <div class="tab-content p-5">
         <div id="Pending_request" class="block">
           <div class="space-y-4">
             <?php foreach ($reservationsPending as $reservation): ?>
               <div class="flex justify-between bg-white p-5 rounded-lg shadow-md hover:shadow-xl cursor-pointer reservation-item">
                 <div>
-                  <p class="text-xl font-semibold text-gray-800">Name: Sadid</p>
+                  <p class="md:text-xl text-sm font-semibold text-gray-800">Reservation date: <?php echo $reservation['Reservation_date']; ?></p>
                   <p class="text-lg font-semibold text-green-500"><?php echo $reservation['pickup_location']; ?> → <?php echo $reservation['destination']; ?></p>
+                  <p class="text-sm text-gray-600">Trip type: <?php echo $reservation['trip_type']; ?></p>
                   <p class="text-sm text-gray-600">Vehicle Type: <?php echo $reservation['vehicle_type']; ?></p>
                   <p class="text-sm text-gray-600">Pickup Time: <?php echo $reservation['trip_start']; ?></p>
-                  <p class="text-sm text-gray-600">Payment Method: <?php echo $reservation['payment_method']; ?></p>
+                  <p class="text-sm text-gray-600">Trip cost: <?php echo $reservation['price']; ?> <?php echo $reservation['payment_method']; ?></p>
                 </div>
                 <div>
                   <!-- Accept Button -->
@@ -164,51 +166,55 @@ $conn->close();
       </div>
 
       <!-- Accepted Tab -->
-      <input id="Accepted_tab" type="radio" name="my_tabs_1" class="tab" aria-label="Accepted "  />
+      <input id="Accepted_tab" type="radio" name="my_tabs_1" class="tab" aria-label="Accepted " />
       <div class="tab-content p-3">
-      <div id="Accepted_request" class="block">
-            <div class="space-y-4">
+        <div id="Accepted_request" class="block">
+          <div class="space-y-4">
             <?php foreach ($reservationsAccepted as $reservation): ?>
-                <div class="flex justify-between bg-white p-5 rounded-lg shadow-md hover:shadow-xl cursor-pointer reservation-item">
+              <div class="flex justify-between bg-white p-5 rounded-lg shadow-md hover:shadow-xl cursor-pointer reservation-item">
                 <div>
-                    <p class="text-lg font-semibold"><?php echo $reservation['pickup_location']; ?> → <?php echo $reservation['destination']; ?></p>
-                    <p class="text-sm text-gray-500">Vehicle: <?php echo $reservation['vehicle_type']; ?></p>
-                    <p class="text-sm text-gray-500">Pickup Time: <?php echo $reservation['trip_start']; ?></p>
-                    <p class="text-sm text-gray-500">Payment Method: <?php echo $reservation['payment_method']; ?></p>
+                  <p class="md:text-xl text-sm font-semibold text-gray-800">Reservation date: <?php echo $reservation['Reservation_date']; ?></p>
+                  <p class="text-lg font-semibold text-green-500"><?php echo $reservation['pickup_location']; ?> → <?php echo $reservation['destination']; ?></p>
+                  <p class="text-sm text-gray-600">Trip type: <?php echo $reservation['trip_type']; ?></p>
+                  <p class="text-sm text-gray-600">Vehicle Type: <?php echo $reservation['vehicle_type']; ?></p>
+                  <p class="text-sm text-gray-600">Pickup Time: <?php echo $reservation['trip_start']; ?></p>
+                  <p class="text-sm text-gray-600">Trip cost: <?php echo $reservation['price']; ?> <?php echo $reservation['payment_method']; ?></p>
                 </div>
                 <div>
-                    <!-- Cancel Button -->
-                    <form method="POST">
+                  <!-- Cancel Button -->
+                  <form method="POST">
                     <input type="hidden" name="cancel_reservation_id" value="<?php echo $reservation['id']; ?>" />
                     <button type="submit" class="mt-4 bg-red-500 text-white py-2 px-4 rounded-lg hover:bg-red-400">Cancelled</button>
-                    </form>
+                  </form>
                 </div>
-                </div>
+              </div>
             <?php endforeach; ?>
-            </div>
+          </div>
         </div>
 
-        
-      </div>
-    
 
-       <input type="radio" name="my_tabs_1" role="tab" class="tab" aria-label="Cancelled" />
+      </div>
+
+
+      <input type="radio" name="my_tabs_1" role="tab" class="tab" aria-label="Cancelled" />
       <div role="tabpanel" class="tab-content p-3">
 
         <!-- Cancelled Reservations Section -->
         <div id="Cancelled_request" class="block">
           <div class="space-y-4">
-          <?php if (!empty($cancelledReservations)): ?>
-            <?php foreach ($cancelledReservations as $cancelled): ?>
+            <?php if (!empty($cancelledReservations)): ?>
+              <?php foreach ($cancelledReservations as $cancelled): ?>
                 <div class="flex justify-between bg-gray-100 p-5 rounded-lg shadow-md hover:shadow-xl reservation-item">
                   <div>
-                      <p class="text-lg font-semibold"><?php echo $cancelled['pickup_location']; ?> → <?php echo $cancelled['destination']; ?></p>
-                      <p class="text-sm text-gray-500">Vehicle: <?php echo $cancelled['vehicle_type']; ?></p>
-                      <p class="text-sm text-gray-500">Pickup Time: <?php echo $cancelled['trip_start']; ?></p>
-                      <p class="text-sm text-gray-500">Payment Method: <?php echo $cancelled['payment_method']; ?></p>
+                    <p class="md:text-xl text-sm font-semibold text-gray-800">Reservation date: <?php echo $cancelled['Reservation_date']; ?></p>
+                    <p class="text-lg font-semibold text-green-500"><?php echo $cancelled['pickup_location']; ?> → <?php echo $cancelled['destination']; ?></p>
+                    <p class="text-sm text-gray-600">Trip type: <?php echo $cancelled['trip_type']; ?></p>
+                    <p class="text-sm text-gray-600">Vehicle Type: <?php echo $cancelled['vehicle_type']; ?></p>
+                    <p class="text-sm text-gray-600">Pickup Time: <?php echo $cancelled['trip_start']; ?></p>
+                    <p class="text-sm text-gray-600">Trip cost: <?php echo $cancelled['price']; ?> <?php echo $cancelled['payment_method']; ?></p>
                   </div>
                   <div>
-                  <p class="mt-3 text-red-500 font-bold">Cancelled</p>
+                    <p class="mt-3 text-red-500 font-bold">Cancelled</p>
                   </div>
                 </div>
               <?php endforeach; ?>
@@ -221,19 +227,21 @@ $conn->close();
 
 
 
-       <input type="radio" name="my_tabs_1" role="tab" class="tab" aria-label="Successful" />
+      <input type="radio" name="my_tabs_1" role="tab" class="tab" aria-label="Successful" />
       <div role="tabpanel" class="tab-content p-3">
         <!-- Successful Reservations Section -->
         <div id="Successful_request" class="block">
           <div class="space-y-4">
             <?php if (!empty($successfulReservations)): ?>
-              <?php foreach ($successfulReservations as $successful): ?>
+              <?php foreach ($successfulReservations as $reservation): ?>
                 <div class="flex justify-between bg-green-50 p-5 rounded-lg shadow-md hover:shadow-xl reservation-item">
                   <div>
-                    <p class="text-lg font-semibold"><?php echo $successful['pickup_location']; ?> → <?php echo $successful['destination']; ?></p>
-                    <p class="text-sm text-gray-500">Vehicle: <?php echo $successful['vehicle_type']; ?></p>
-                    <p class="text-sm text-gray-500">Pickup Time: <?php echo $successful['trip_start']; ?></p>
-                    <p class="text-sm text-gray-500">Payment Method: <?php echo $successful['payment_method']; ?></p>
+                    <p class="md:text-xl text-sm font-semibold text-gray-800">Reservation date: <?php echo $reservation['Reservation_date']; ?></p>
+                    <p class="text-lg font-semibold text-green-500"><?php echo $reservation['pickup_location']; ?> → <?php echo $reservation['destination']; ?></p>
+                    <p class="text-sm text-gray-600">Trip type: <?php echo $reservation['trip_type']; ?></p>
+                    <p class="text-sm text-gray-600">Vehicle Type: <?php echo $reservation['vehicle_type']; ?></p>
+                    <p class="text-sm text-gray-600">Pickup Time: <?php echo $reservation['trip_start']; ?></p>
+                    <p class="text-sm text-gray-600">Trip cost: <?php echo $reservation['price']; ?> <?php echo $reservation['payment_method']; ?></p>
                   </div>
                   <div>
                     <p class="mt-3 text-green-500 font-bold">Successful</p>
@@ -252,31 +260,32 @@ $conn->close();
 
 
 
-      <!-- Bottom Navigation Bar -->
-      <div class="fixed bottom-0 w-full bg-pantone p-3 z-40 flex justify-around text-white md:hidden">
-        <div class="flex flex-col items-center space-y-1">
-          <i class="fa-solid fa-th-large text-lg"></i>
-          <p class="text-xs">Services</p>
-        </div>
-        <a href="http://localhost/zanbahon/Custumer_history.php">
-        <div class="flex flex-col items-center space-y-1">
-            <i class="fa-solid fa-clock text-lg"></i>
-            <p class="text-xs">History</p>
-        </div></a>
-
-        <div class="flex flex-col items-center space-y-1">
-          <i class="fa-solid fa-home text-lg"></i>
-          <p class="text-xs">Home</p>
-        </div>
-        <div class="flex flex-col items-center space-y-1">
-          <i class="fa-solid fa-percent text-lg"></i>
-          <p class="text-xs">Offers</p>
-        </div>
-        <div class="flex flex-col items-center space-y-1">
-          <i class="fa-solid fa-layer-group text-lg"></i>
-          <p class="text-xs">Modes</p>
-        </div>
+    <!-- Bottom Navigation Bar -->
+    <div class="fixed bottom-0 w-full bg-pantone p-3 z-40 flex justify-around text-white md:hidden">
+      <div class="flex flex-col items-center space-y-1">
+        <i class="fa-solid fa-th-large text-lg"></i>
+        <p class="text-xs">Services</p>
       </div>
+      <a href="http://localhost/zanbahon/Custumer_history.php">
+        <div class="flex flex-col items-center space-y-1">
+          <i class="fa-solid fa-clock text-lg"></i>
+          <p class="text-xs">History</p>
+        </div>
+      </a>
+
+      <div class="flex flex-col items-center space-y-1">
+        <i class="fa-solid fa-home text-lg"></i>
+        <p class="text-xs">Home</p>
+      </div>
+      <div class="flex flex-col items-center space-y-1">
+        <i class="fa-solid fa-percent text-lg"></i>
+        <p class="text-xs">Offers</p>
+      </div>
+      <div class="flex flex-col items-center space-y-1">
+        <i class="fa-solid fa-layer-group text-lg"></i>
+        <p class="text-xs">Modes</p>
+      </div>
+    </div>
 
 </body>
 
